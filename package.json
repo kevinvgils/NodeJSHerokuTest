@@ -4,6 +4,7 @@
   "description": "test for heroku",
   "main": "server-1-text.js",
   "scripts": {
+    "start": "node server-1-text.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
