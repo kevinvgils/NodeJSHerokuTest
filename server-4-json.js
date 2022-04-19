@@ -2,7 +2,7 @@ var http = require('http');
 
 function onRequest(request, response) {
     console.log("Er was een request.");
-    response.writeHead(200, {'Content-Type': 'text/json'});
+    response.writeHead(200, {'Content-Type': 'text/plain'});
 
     var exampleArray = ["item1", "item2"];
 
