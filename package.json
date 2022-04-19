@@ -1,0 +1,20 @@
+{
+  "name": "nodejsherokutest",
+  "version": "1.0.0",
+  "description": "test for heroku",
+  "main": "server-1-text.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinvgils/NodeJSHerokuTest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kevinvgils/NodeJSHerokuTest/issues"
+  },
+  "homepage": "https://github.com/kevinvgils/NodeJSHerokuTest#readme"
+}
