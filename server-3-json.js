@@ -9,6 +9,6 @@ function onRequest(request, response) {
     response.end(json);
 }
 
-http.createServer(onRequest).listen(3000);
+http.createServer(onRequest).listen(3001);
 
 console.log('de server luistert op poort 3000');
