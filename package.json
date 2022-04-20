@@ -4,7 +4,7 @@
   "description": "test for heroku",
   "main": "server-2-html.js",
   "scripts": {
-    "start": "node server-2-html.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/kevinvgils/NodeJSHerokuTest/issues"
   },
-  "homepage": "https://github.com/kevinvgils/NodeJSHerokuTest#readme"
+  "homepage": "https://github.com/kevinvgils/NodeJSHerokuTest#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
 }
