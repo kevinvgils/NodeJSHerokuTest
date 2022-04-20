@@ -18,7 +18,17 @@
 
     // Requests own user profile
     app.get('/api/user/profile', (req, res) => {
-        res.send('Get user profile')
+        res.send({
+            "id": 0,
+            "firstName": "John",
+            "lastName": "Doe",
+            "street": "Lovensdijkstraat 61",
+            "city": "Breda",
+            "isActive": true,
+            "emailAdress": "j.doe@server.com",
+            "password": "secret",
+            "phoneNumber": "06 12425475"
+          })
     })
 
     app.route('/api/user/:id')
