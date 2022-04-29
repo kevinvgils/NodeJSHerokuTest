@@ -19,6 +19,8 @@
   "homepage": "https://github.com/kevinvgils/NodeJSHerokuTest#readme",
   "dependencies": {
     "body-parser": "^1.20.0",
-    "express": "^4.17.3"
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mysql": "^2.18.1"
   }
 }
