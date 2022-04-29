@@ -1,5 +1,6 @@
 let database = [];
 let id = 0;
+const dbconnection = require('../../database/dbconnection')
 let controller = {
     
     addUser: function(req, res) {
@@ -23,10 +24,23 @@ let controller = {
         }
     },
     getAllUsers: function(req, res) {
-        res.status(200).json({
-            status: 200,
-            result: database
-        })
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('SELECT * FROM user;', function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if (error) throw error;
+        
+                res.status(200).json({
+                    status: 200,
+                    result: results
+                })
+            });
+        });
     },
     getUserProfile: function(req, res) {
         res.send('Not realized yet.')
@@ -34,19 +48,23 @@ let controller = {
     getUserById: function(req, res) {
         const userId = parseInt(req.params.userId);
 
-        let user = database.filter((item) => item.id === userId);
-    
-        if (user.length > 0) {
-            res.status(200).json({
-                status: 200,
-                result: user
-            })
-        } else {
-            res.status(404).json({
-                status: 404,
-                message: 'User not found'
-            })
-        }
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('SELECT * FROM user WHERE id = ' + userId, function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if (error) throw error;
+        
+                res.status(201).json({
+                    status: 200,
+                    result: results
+                })
+            });
+        });
     },
     updateUserById: function(req, res) {
         const userId = parseInt(req.params.userId);
