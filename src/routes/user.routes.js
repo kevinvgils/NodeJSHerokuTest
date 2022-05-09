@@ -6,7 +6,7 @@ const controller = require('../controllers/user.controllers')
 
 // Make account for users
 router.route('/api/user')
-.post(controller.addUser)
+.post(controller.validateUser, controller.addUser)
 
 // Get all users
 .get(controller.getAllUsers)

@@ -1,8 +1,29 @@
+const assert = require('assert');
 let database = [];
 let id = 0;
 const dbconnection = require('../../database/dbconnection')
 let controller = {
-    
+    validateUser: (req, res, next) =>{
+        let user = req.body;
+        let { email, password, firstName, lastName } = user;
+
+        try {
+            assert(typeof email === 'string', 'email must be a string')
+            assert(typeof firstName === 'string', 'firstName must be a string')
+            assert(typeof lastName === 'string', 'lastName must be a string')
+            assert(typeof password === 'string', 'password must be a string')
+
+
+        } catch (error) {
+            const err = {
+                status: 400,
+                result: error.message
+            }
+            next(err)
+        }
+
+        next();
+    },
     addUser: function(req, res) {
         let user = req.body
         if (database.filter(item => item.emailAdress === req.body.emailAdress).length > 0) {
