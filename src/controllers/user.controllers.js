@@ -5,7 +5,7 @@ const dbconnection = require('../../database/dbconnection')
 let controller = {
     validateUser: (req, res, next) =>{
         let user = req.body;
-        let { emailAdress, password, firstName, lastName } = user;
+        let { emailAdress, password, firstName, lastName, city, street } = user;
 
         try {
             assert(typeof emailAdress === 'string', 'email must be a string')
@@ -14,6 +14,33 @@ let controller = {
             assert(typeof password === 'string', 'password must be a string')
             assert(typeof street === 'string', 'street must be a string')
             assert(typeof city === 'string', 'city must be a string')
+
+
+
+        } catch (error) {
+            const err = {
+                status: 400,
+                result: error.message
+            }
+            next(err)
+        }
+
+        next();
+    },
+    validateUpdatedUser: (req, res, next) =>{
+        let user = req.body;
+        let { emailAdress, password, firstName, lastName, street, city, isActive, phoneNumber } = user;
+
+        try {
+            assert(typeof emailAdress === 'string', 'email must be a string')
+            assert(typeof firstName === 'string', 'firstName must be a string')
+            assert(typeof lastName === 'string', 'lastName must be a string')
+            assert(typeof password === 'string', 'password must be a string')
+            assert(typeof street === 'string', 'street must be a string')
+            assert(typeof city === 'string', 'city must be a string')
+            assert(typeof isActive === 'boolean', 'isActive must be a boolean')
+            assert(typeof phoneNumber === 'string', 'phoneNumber must be a string')
+
 
 
 
@@ -113,26 +140,37 @@ let controller = {
     updateUserById: function(req, res) {
         const userId = parseInt(req.params.userId);
         let updatedUser = req.body
-    
-        // Vind index van user object in database (array)
-        index = database.findIndex((item => item.id === userId));
-    
-        if(index != -1 && !database.filter(item => item.emailAdress === req.body.emailAdress && item.id !== userId).length > 0) {
-            database[index] = {
-                id: userId,
-                ...updatedUser
-            }
-    
-            res.status(200).json({
-                status: 200,
-                result: database[index]
-            })
-        } else {
-            res.status(400).json({
-                status: 400,
-                message: 'User not found or email address already in use!'
-            })
-        }
+
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('UPDATE user SET emailAdress = ?, firstName = ?, lastName = ?, password = ?, city = ?, street = ?, isActive = ?, phoneNumber = ? WHERE id = ?;', [updatedUser.emailAdress, updatedUser.firstName, updatedUser.lastName, updatedUser.password, updatedUser.city, updatedUser.street, userId], function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if (error) {
+                    console.log(error);
+                    return;
+                } else if(results.affectedRows === 0) {
+                    res.status(400).json({
+                        status: 400,
+                        message: 'User not found'
+                    })
+                } else {
+                    res.status(201).json({
+                        status: 201,
+                        result: {
+                            result: {
+                                id: userId,
+                                ...updatedUser
+                            }
+                        }
+                    })
+                }
+            });
+        });
     },
     deleteUserById: function(req, res) {
         const userId = parseInt(req.params.userId);
@@ -149,6 +187,11 @@ let controller = {
                 if (error) {
                     console.log(error);
                     return;
+                } else if(results.affectedRows === 0) {
+                    res.status(400).json({
+                        status: 400,
+                        message: 'User not found'
+                    })
                 } else {
                     res.status(201).json({
                         status: 201,

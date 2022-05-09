@@ -18,7 +18,7 @@ router.route('/api/user/:userId')
 // Get single user by id
 .get(controller.getUserById)
 // Update single user by id
-.put(controller.updateUserById)
+.put(controller.validateUpdatedUser, controller.updateUserById)
 
 // Delete single user by id
 .delete(controller.deleteUserById)
