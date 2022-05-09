@@ -76,6 +76,8 @@ let controller = {
                         status: 201,
                         result: {
                             id: results.insertId,
+                            isActive: user.isActive || true,
+                            phoneNumber: user.isActive || "-",
                             ...user
                         }
                     })
