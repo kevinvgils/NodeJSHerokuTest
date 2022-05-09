@@ -148,6 +148,7 @@ let controller = {
                 // Handle error after the release.
                 if (error) {
                     console.log(error);
+                    return;
                 } else {
                     res.status(201).json({
                         status: 201,
