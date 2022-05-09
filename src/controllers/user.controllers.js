@@ -198,7 +198,7 @@ let controller = {
                     })
                 } else {
                     res.status(200).json({
-                        status: 20,
+                        status: 200,
                         result: results
                     })
                 }
