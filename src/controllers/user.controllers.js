@@ -67,7 +67,7 @@ let controller = {
             
                 // Handle error after the release.
                 if (error) {
-                    res.status(400).json({
+                    res.status(409).json({
                         status: 409,
                         message: error.message
                     })
@@ -128,7 +128,7 @@ let controller = {
                             result: results
                         })
                     } else {
-                        res.status(400).json({
+                        res.status(404).json({
                             status: 404,
                             message: 'User not found!'
                         })
@@ -199,6 +199,7 @@ let controller = {
                 } else {
                     res.status(200).json({
                         status: 200,
+                        message: 'User deleted successfully',
                         result: results
                     })
                 }
