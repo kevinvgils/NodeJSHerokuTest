@@ -20,7 +20,7 @@ let controller = {
         } catch (error) {
             const err = {
                 status: 400,
-                result: error.message
+                message: error.message
             }
             next(err)
         }
@@ -47,7 +47,7 @@ let controller = {
         } catch (error) {
             const err = {
                 status: 400,
-                result: error.message
+                message: error.message
             }
             next(err)
         }
@@ -68,7 +68,7 @@ let controller = {
                 // Handle error after the release.
                 if (error) {
                     res.status(400).json({
-                        status: 400,
+                        status: 409,
                         message: error.message
                     })
                 } else {
@@ -123,13 +123,13 @@ let controller = {
                     return;
                 } else {
                     if (results && results.length ) {
-                        res.status(201).json({
-                            status: 201,
+                        res.status(200).json({
+                            status: 200,
                             result: results
                         })
                     } else {
                         res.status(400).json({
-                            status: 400,
+                            status: 404,
                             message: 'User not found!'
                         })
                     }
@@ -164,6 +164,7 @@ let controller = {
                 } else {
                     res.status(201).json({
                         status: 201,
+                        message: 'User successfully updated',
                         result: {
                             result: {
                                 id: userId,
@@ -193,11 +194,11 @@ let controller = {
                 } else if(results.affectedRows === 0) {
                     res.status(400).json({
                         status: 400,
-                        message: 'User not found'
+                        message: 'User does not exist'
                     })
                 } else {
-                    res.status(201).json({
-                        status: 201,
+                    res.status(200).json({
+                        status: 20,
                         result: results
                     })
                 }
