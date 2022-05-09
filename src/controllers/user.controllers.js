@@ -151,7 +151,10 @@ let controller = {
             
                 // Handle error after the release.
                 if (error) {
-                    console.log(error);
+                    res.status(400).json({
+                        status: 400,
+                        message: error.message
+                    })
                     return;
                 } else if(results.affectedRows === 0) {
                     res.status(400).json({
