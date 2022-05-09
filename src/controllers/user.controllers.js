@@ -85,17 +85,28 @@ let controller = {
             if (err) throw err; // not connected!
            
             // Use the connection
-            connection.query('SELECT * FROM user WHERE id = ' + userId, function (error, results, fields) {
+            connection.query('SELECT * FROM user WHERE id = ?', [userId], function (error, results, fields) {
                 // When done with the connection, release it.
                 connection.release();
             
                 // Handle error after the release.
-                if (error) throw error;
-        
-                res.status(201).json({
-                    status: 201,
-                    result: results
-                })
+                if(error) {
+                    console.error('Error in DB');
+                    console.debug(error);
+                    return;
+                } else {
+                    if (results && results.length ) {
+                        res.status(201).json({
+                            status: 201,
+                            result: results
+                        })
+                    } else {
+                        res.status(400).json({
+                            status: 400,
+                            message: 'User not found!'
+                        })
+                    }
+                }
             });
         });
     },
@@ -126,23 +137,25 @@ let controller = {
     deleteUserById: function(req, res) {
         const userId = parseInt(req.params.userId);
 
-        // Vind index van user object in database (array)
-        index = database.findIndex((item => item.id === userId));
-    
-        if(index != -1) {
-            database.splice(index, 1)
-    
-            res.status(200).json({
-                status: 200,
-                message: 'Deleted user successfully',
-                result: database
-            })
-        } else {
-            res.status(400).json({
-                status: 400,
-                message: 'User not found!'
-            })
-        }
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('DELETE FROM user WHERE id = ?;', [userId], function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if (error) {
+                    console.log(error);
+                } else {
+                    res.status(201).json({
+                        status: 201,
+                        result: results
+                    })
+                }
+            });
+        });
     }
 }
 module.exports = controller
