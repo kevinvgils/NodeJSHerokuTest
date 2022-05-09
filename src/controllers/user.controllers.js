@@ -5,13 +5,16 @@ const dbconnection = require('../../database/dbconnection')
 let controller = {
     validateUser: (req, res, next) =>{
         let user = req.body;
-        let { email, password, firstName, lastName } = user;
+        let { emailAdress, password, firstName, lastName } = user;
 
         try {
-            assert(typeof email === 'string', 'email must be a string')
+            assert(typeof emailAdress === 'string', 'email must be a string')
             assert(typeof firstName === 'string', 'firstName must be a string')
             assert(typeof lastName === 'string', 'lastName must be a string')
             assert(typeof password === 'string', 'password must be a string')
+            assert(typeof street === 'string', 'street must be a string')
+            assert(typeof city === 'string', 'city must be a string')
+
 
 
         } catch (error) {
@@ -26,23 +29,32 @@ let controller = {
     },
     addUser: function(req, res) {
         let user = req.body
-        if (database.filter(item => item.emailAdress === req.body.emailAdress).length > 0) {
-            res.status(401).json({
-                status: 401,
-                message: req.body.emailAdress + " already exists!"
-            })
-        } else {
-            id++;
-            user = {
-                id,
-                ...user
-            }
-            database.push(user);
-            res.status(201).json({
-                status: 201,
-                result: user
-            })
-        }
+
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('INSERT INTO user (firstName, lastName, street, city, password, emailAdress) VALUES (?, ?, ?, ?, ?, ?);', [user.firstName, user.lastName, user.street, user.city, user.password, user.emailAdress] ,function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if (error) {
+                    res.status(400).json({
+                        status: 400,
+                        message: error.message
+                    })
+                } else {
+                    res.status(201).json({
+                        status: 201,
+                        result: {
+                            id: results.insertId,
+                            ...user
+                        }
+                    })
+                }
+            });
+        });
     },
     getAllUsers: function(req, res) {
         dbconnection.getConnection(function(err, connection) {
@@ -81,7 +93,7 @@ let controller = {
                 if (error) throw error;
         
                 res.status(201).json({
-                    status: 200,
+                    status: 201,
                     result: results
                 })
             });
