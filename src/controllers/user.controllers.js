@@ -32,20 +32,7 @@ let controller = {
         let { emailAdress, password, firstName, lastName, street, city, isActive, phoneNumber } = user;
 
         try {
-            assert(typeof user === 'object', 'there must be a user object')
             assert(typeof emailAdress === 'string', 'emailAddress must be a string')
-
-            // assert(typeof firstName === 'string', 'firstName must be a string')
-            // assert(typeof lastName === 'string', 'lastName must be a string')
-            // assert(typeof password === 'string', 'password must be a string')
-            // assert(typeof street === 'string', 'street must be a string')
-            // assert(typeof city === 'string', 'city must be a string')
-            // assert(typeof isActive === 'boolean', 'isActive must be a boolean')
-            // assert(typeof phoneNumber === 'string', 'phoneNumber must be a string')
-
-
-
-
         } catch (error) {
             const err = {
                 status: 400,
