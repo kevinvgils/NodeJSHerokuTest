@@ -32,14 +32,14 @@ let controller = {
         let { emailAdress, password, firstName, lastName, street, city, isActive, phoneNumber } = user;
 
         try {
-            assert(typeof emailAdress === 'string', 'email must be a string')
-            assert(typeof firstName === 'string', 'firstName must be a string')
-            assert(typeof lastName === 'string', 'lastName must be a string')
-            assert(typeof password === 'string', 'password must be a string')
-            assert(typeof street === 'string', 'street must be a string')
-            assert(typeof city === 'string', 'city must be a string')
-            assert(typeof isActive === 'boolean', 'isActive must be a boolean')
-            assert(typeof phoneNumber === 'string', 'phoneNumber must be a string')
+            assert(typeof user === 'object', 'there must be a user object')
+            // assert(typeof firstName === 'string', 'firstName must be a string')
+            // assert(typeof lastName === 'string', 'lastName must be a string')
+            // assert(typeof password === 'string', 'password must be a string')
+            // assert(typeof street === 'string', 'street must be a string')
+            // assert(typeof city === 'string', 'city must be a string')
+            // assert(typeof isActive === 'boolean', 'isActive must be a boolean')
+            // assert(typeof phoneNumber === 'string', 'phoneNumber must be a string')
 
 
 
@@ -147,7 +147,9 @@ let controller = {
             if (err) throw err; // not connected!
            
             // Use the connection
-            connection.query('UPDATE user SET emailAdress = ?, firstName = ?, lastName = ?, password = ?, city = ?, street = ?, isActive = ?, phoneNumber = ? WHERE id = ?;', [updatedUser.emailAdress, updatedUser.firstName, updatedUser.lastName, updatedUser.password, updatedUser.city, updatedUser.street, userId], function (error, results, fields) {
+            const query = "UPDATE user SET " + Object.keys(updatedUser).map(key => `${key} = ?`).join(", ") + " WHERE id = ?";
+            const parameters = [...Object.values(updatedUser), userId];
+            connection.query(query, parameters, function (error, results, fields) {
                 // When done with the connection, release it.
                 connection.release();
             
@@ -158,12 +160,7 @@ let controller = {
                         message: error.message
                     })
                     return;
-                } else if(results.affectedRows === 0) {
-                    res.status(400).json({
-                        status: 400,
-                        message: 'User not found'
-                    })
-                } else {
+                } else if(results.affectedRows === 1) {
                     res.status(201).json({
                         status: 201,
                         message: 'User successfully updated',
@@ -173,6 +170,11 @@ let controller = {
                                 ...updatedUser
                             }
                         }
+                    })
+                } else {
+                    res.status(400).json({
+                        status: 400,
+                        message: 'User not found'
                     })
                 }
             });
