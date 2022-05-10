@@ -116,7 +116,7 @@ let controller = {
                     if (results && results.length ) {
                         res.status(200).json({
                             status: 200,
-                            result: results
+                            result: results[0]
                         })
                     } else {
                         res.status(404).json({
