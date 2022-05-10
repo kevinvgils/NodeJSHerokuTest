@@ -154,10 +154,8 @@ let controller = {
                         status: 200,
                         message: 'User successfully updated',
                         result: {
-                            result: {
-                                id: userId,
-                                ...updatedUser
-                            }
+                            id: userId,
+                            ...updatedUser
                         }
                     })
                 } else {
