@@ -33,6 +33,8 @@ let controller = {
 
         try {
             assert(typeof user === 'object', 'there must be a user object')
+            assert(typeof emailAdress === 'string', 'emailAddress must be a string')
+
             // assert(typeof firstName === 'string', 'firstName must be a string')
             // assert(typeof lastName === 'string', 'lastName must be a string')
             // assert(typeof password === 'string', 'password must be a string')
@@ -161,8 +163,8 @@ let controller = {
                     })
                     return;
                 } else if(results.affectedRows === 1) {
-                    res.status(201).json({
-                        status: 201,
+                    res.status(200).json({
+                        status: 200,
                         message: 'User successfully updated',
                         result: {
                             result: {
