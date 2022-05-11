@@ -16,7 +16,7 @@ chai.use(chaiHttp);
  */
  const CLEAR_MEAL_TABLE = 'DELETE FROM `meal`;'
  const CLEAR_PARTICIPANTS_TABLE = 'DELETE FROM `meal_participants_user`;'
- const CLEAR_USERS_TABLE = 'DELETE FROM `user`;'
+ const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
  const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
  /**
