@@ -2,7 +2,8 @@
     const app = express()
     require('dotenv').config();
     const port = process.env.PORT || 3000
-    const router = require('./src/routes/user.routes')
+    const userRouter = require('./src/routes/user.routes')
+    const mealRouter = require('./src/routes/meal.routes')
     const authRouter = require('./src/routes/auth.routes')
     const bodyParser = require('body-parser')
 
@@ -15,7 +16,8 @@
         })
     })
 
-    app.use(router)
+    app.use(userRouter)
+    app.use(mealRouter)
     app.use(authRouter)
     app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

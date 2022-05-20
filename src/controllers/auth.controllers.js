@@ -118,5 +118,16 @@ let controller = {
             })
         }
     },
+
+    validateDataOwner(req, res, next) {
+        if(req.userId !== req.id) {
+            res.status(403).json({
+                status: 403,
+                message: 'You are not the owner of this data!'
+            })
+        } else {
+            next();
+        }
+    },
 }
 module.exports = controller
