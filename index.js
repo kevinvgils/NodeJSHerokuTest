@@ -3,6 +3,7 @@
     require('dotenv').config();
     const port = process.env.PORT || 3000
     const router = require('./src/routes/user.routes')
+    const authRouter = require('./src/routes/auth.routes')
     const bodyParser = require('body-parser')
 
     app.use(bodyParser.json())
@@ -15,7 +16,7 @@
     })
 
     app.use(router)
-    
+    app.use(authRouter)
     app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
     })
