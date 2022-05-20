@@ -1,6 +1,4 @@
 const assert = require('assert');
-let database = [];
-let id = 0;
 const dbconnection = require('../../database/dbconnection')
 let controller = {
     validateUser: (req, res, next) =>{

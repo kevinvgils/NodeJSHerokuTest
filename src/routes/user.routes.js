@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const controller = require('../controllers/user.controllers')
+const authController = require('../controllers/auth.controllers')
 
 
 
@@ -12,15 +13,15 @@ router.route('/api/user')
 .get(controller.getAllUsers)
 
 // Requests own user profile
-router.get('/api/user/profile', controller.getUserProfile)
+router.get('/api/user/profile', authController.validateToken, controller.getUserProfile)
 
 router.route('/api/user/:userId')
 // Get single user by id
-.get(controller.getUserById)
+.get(authController.validateToken, controller.getUserById)
 // Update single user by id
-.put(controller.validateUpdatedUser, controller.updateUserById)
+.put(authController.validateToken, controller.validateUpdatedUser, controller.updateUserById)
 
 // Delete single user by id
-.delete(controller.deleteUserById)
+.delete(authController.validateToken, controller.deleteUserById)
 
 module.exports = router
