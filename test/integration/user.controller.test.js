@@ -6,6 +6,8 @@ const server = require('../../index');
 const assert = require('assert')
 require('dotenv').config()
 const dbconnection = require('../../database/dbconnection')
+const jwt = require('jsonwebtoken')
+const { jwtSecretKey, logger } = require('../../src/config/config')
 
 chai.should();
 chai.use(chaiHttp);
@@ -128,11 +130,12 @@ describe('Manage users api/user', () => {
         });
     })
 
-    describe('UC-204 register as new user', () => {
+    describe('UC-204 Details van gebruiker', () => {
         it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
             chai
                 .request(server)
                 .get('/api/user/666')
+                .set('Authorization', 'Bearer ' + jwt.sign({ id: 666 }, jwtSecretKey))
                 .end((err, res) => {
                     res.should.be.an('object')
                     let { status, message } = res.body;
@@ -145,6 +148,7 @@ describe('Manage users api/user', () => {
             chai
                 .request(server)
                 .get('/api/user/' + insertId)
+                .set('Authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey))
                 .end((err, res) => {
                     res.should.be.an('object')
                     let { status, result } = res.body;
@@ -157,7 +161,7 @@ describe('Manage users api/user', () => {
 
     describe('UC-205 Gebruiker weizigen', () => {
         it('TC-205-1 Verplicht veld ontbreekt', (done) => {
-            chai.request(server).put('/api/user/1').send({
+            chai.request(server).put('/api/user/1').set('Authorization', 'Bearer ' + jwt.sign({ id: 1 }, jwtSecretKey)).send({
                 // email ontbreekt
                 // email: 'user@example.com',
                 lastName: 'van Gils',
@@ -172,7 +176,7 @@ describe('Manage users api/user', () => {
             });
         })
         it('TC-205-4 Gebruiker bestaat niet', (done) => {
-            chai.request(server).put('/api/user/666').send({
+            chai.request(server).put('/api/user/666').set('authorization', 'Bearer ' + jwt.sign({ id: 666 }, jwtSecretKey)).send({
                 emailAdress: 'user@example.com',
                 lastName: 'van Gils',
                 password: 'password'
@@ -187,7 +191,7 @@ describe('Manage users api/user', () => {
         })
 
         it('TC-205-6 Gebruiker succesvol gewijzigd', (done) => {
-            chai.request(server).put('/api/user/' + insertId).send({
+            chai.request(server).put('/api/user/' + insertId).set('authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey)).send({
                 emailAdress: 'user12@example.com',
                 lastName: 'van Gils',
                 password: 'password'
@@ -207,6 +211,7 @@ describe('Manage users api/user', () => {
             chai
                 .request(server)
                 .delete('/api/user/666')
+                .set('authorization', 'Bearer ' + jwt.sign({ id: 666 }, jwtSecretKey))
                 .end((err, res) => {
                     res.should.be.an('object')
                     let { status, message } = res.body;
@@ -219,6 +224,7 @@ describe('Manage users api/user', () => {
             chai
                 .request(server)
                 .delete('/api/user/' + insertId)
+                .set('authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey))
                 .end((err, res) => {
                     res.should.be.an('object')
                     let { status, message } = res.body;
