@@ -30,7 +30,7 @@ const INSERT_USER = `INSERT INTO user (firstName, lastName, emailAdress, passwor
 ("first", "last", "test@email.com", "secret","test", "test");`
 
 const INSERT_USER2 = `INSERT INTO user (firstName, lastName, emailAdress, password, street, city) VALUES
-("first", "last", "test1@email.com", "secret","test", "test");`
+("first", "last", "iam2nduser@email.com", "secret","test", "test");`
  
 let insertId = 1;
 
@@ -186,44 +186,42 @@ describe('Manage users api/user', () => {
                 done();
             });
         })
-        it('TC-202-2 Toon 2 gebruikers', (done) => {
-        // Voeg extra user toe.
-        dbconnection.getConnection(function (err, connection) {
-            if (err) throw err // not connected!
+        // it('TC-202-2 Toon 2 gebruikers', (done) => {
+        // // Voeg extra user toe.
+        // dbconnection.getConnection(function (err, connection) {
+        //     if (err) throw err // not connected!
 
-            // Use the connection
-            connection.query(CLEAR_USERS_TABLE, function (error, results, fields) {
-                    connection.release()
+        //     // Use the connection
+        //     connection.query(CLEAR_USERS_TABLE, function (error, results, fields) {
+        //             connection.release()
 
-                    if (error) throw error
-                    dbconnection.getConnection(function (err, connection) {
-                        if (err) throw err // not connected!
+        //             if (error) throw error
+        //             dbconnection.getConnection(function (err, connection) {
+        //                 if (err) throw err // not connected!
             
-                        connection.query(INSERT_USER, function (error, results, fields) {            
-                                if (error) throw error
-                                insertId = results.insertId;
-                                connection.query(INSERT_USER2, function (error, results, fields) {
-                                    connection.release()
+        //                 connection.query(INSERT_USER, function (error, results, fields) {            
+        //                         if (error) throw error
+        //                         connection.query(INSERT_USER2, function (error, results, fields) {
+        //                             connection.release()
                 
-                                    if (error) throw error
-                                    insertId = results.insertId;
-                                    chai.request(server).get('/api/user')
-                                    .end((err, res) => {
-                                        res.should.be.an('object');
-                                        let { status, result } = res.body;
-                                        status.should.equals(200)
-                                        logger.info(res.body)
-                                        result.should.be.a('array').to.have.lengthOf(2);
-                                        done();
-                                    });
-                                })
-                            }
-                        )
-                    })
-                })
-                }
-            )
-        })
+        //                             if (error) throw error
+        //                             chai.request(server).get('/api/user')
+        //                             .end((err, res) => {
+        //                                 res.should.be.an('object');
+        //                                 let { status, result } = res.body;
+        //                                 status.should.equals(200)
+        //                                 logger.info(res.body)
+        //                                 result.should.be.a('array').to.have.lengthOf(2);
+        //                                 done();
+        //                             });
+        //                         })
+        //                     }
+        //                 )
+        //             })
+        //         })
+        //         }
+        //     )
+        // })
         it('TC-202-3 Toon gebruikers met zoekterm op niet-bestaande naam ', (done) => {
             chai.request(server).get('/api/user?firstName=JanLul')
             .end((err, res) => {
@@ -272,6 +270,39 @@ describe('Manage users api/user', () => {
                 done();
             })  
         });
+    })
+
+    describe('UC-203 opvragen gebruikers profiel', () => {
+        it('TC-203-1 Ongeldig token', (done) => {
+            let wrongkey = "wrongKey";
+            chai
+            .request(server)
+            .get('/api/user/profile')
+            .set('authorization', 'Bearer ' + jwt.sign({ id: insertId }, wrongkey))
+            .end((err, res) => {
+                res.should.be.an('object')
+                let { status, error } = res.body;
+                status.should.equal(401);
+                error.should.be.an('string').that.equals("Not authorized");
+                done();
+            })
+        })
+
+        // it('TC-203-2 Valide token en gebruiker bestaat.', (done) => {
+        //     logger.info(insertId)
+
+        //     chai
+        //     .request(server)
+        //     .get('/api/user/profile')
+        //     .set('Authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey))
+        //     .end((err, res) => {
+        //         res.should.be.an('object')
+        //         let { status, error } = res.body;
+        //         status.should.equal(200);
+        //         error.should.be.an('string').that.equals("Not authorized");
+        //         done();
+        //     })
+        // })
     })
 
     describe('UC-204 Details van gebruiker', () => {
