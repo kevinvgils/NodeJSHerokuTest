@@ -348,7 +348,7 @@ describe('Manage users api/user', () => {
     })
 
     describe('UC-205 Gebruiker weizigen', () => {
-        it('TC-205-1 Verplicht veld ontbreekt', (done) => {
+        it('TC-205-1 Verplicht veld "emailAdress" ontbreekt', (done) => {
             chai.request(server).put('/api/user/1').set('Authorization', 'Bearer ' + jwt.sign({ id: 1 }, jwtSecretKey)).send({
                 // email ontbreekt
                 // email: 'user@example.com',
@@ -363,6 +363,24 @@ describe('Manage users api/user', () => {
                 done();
             });
         })
+
+        it('TC-205-3 Niet valide telefoonnummer', (done) => {
+            chai.request(server).put('/api/user/' + insertId).set('Authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey)).send({
+                // email ontbreekt
+                emailAdress: 'user12@example.com',
+                lastName: 'van Gils',
+                password: 'password',
+                phoneNumber: 12345
+            })
+            .end((err, res) => {
+                res.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(400)
+                message.should.be.a('string').that.equals('The expression evaluated to a falsy value:\n\n  assert(phoneNumberRegex.test(req.body.phoneNumber))\n');
+                done();
+            });
+        })
+
         it('TC-205-4 Gebruiker bestaat niet', (done) => {
             chai.request(server).put('/api/user/666').set('authorization', 'Bearer ' + jwt.sign({ id: 666 }, jwtSecretKey)).send({
                 emailAdress: 'user@example.com',
@@ -378,6 +396,21 @@ describe('Manage users api/user', () => {
             });
         })
 
+        it('TC-205-5 Niet ingelogd', (done) => {
+            chai.request(server).put('/api/user/' + insertId).set('authorization', 'Bearer ' + jwt.sign({ id: insertId }, 'wrongkey')).send({
+                emailAdress: 'user@example.com',
+                lastName: 'van Gils',
+                password: 'password'
+            })
+            .end((err, res) => {
+                res.should.be.an('object');
+                let { status, error } = res.body;
+                status.should.equals(401)
+                error.should.be.a('string').that.equals('Not authorized');
+                done();
+            });
+        })
+
         it('TC-205-6 Gebruiker succesvol gewijzigd', (done) => {
             chai.request(server).put('/api/user/' + insertId).set('authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey)).send({
                 emailAdress: 'user12@example.com',
@@ -388,7 +421,7 @@ describe('Manage users api/user', () => {
                 res.should.be.an('object');
                 let { status, result } = res.body;
                 status.should.equals(200)
-                result.should.be.a('object')
+                result.should.be.an('object').that.has.all.keys('id', 'lastName', 'emailAdress', 'password');
                 done();
             });
         })
