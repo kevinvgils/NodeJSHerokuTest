@@ -28,11 +28,7 @@ let controller = {
                             })
                         }
                         if (rows) {
-                            if (
-                                rows &&
-                                rows.length === 1 &&
-                                rows[0].password == req.body.password
-                            ) {
+                            if (rows && rows.length === 1 && rows[0].password == req.body.password) {
                                 logger.info(
                                     'passwords DID match, sending userinfo and valid token'
                                 )
@@ -57,14 +53,22 @@ let controller = {
                                     }
                                 )
                             } else {
-                                logger.info(
-                                    'User not found or password invalid'
-                                )
-                                res.status(401).json({
-                                    message:
-                                        'User not found or password invalid',
-                                    datetime: new Date().toISOString(),
-                                })
+                                if(rows && rows.length === 0) {
+                                    logger.info(
+                                        'User not found'
+                                    )
+                                    res.status(404).json({
+                                        status: 404,
+                                        message: 'User not found',
+                                        datetime: new Date().toISOString(),
+                                    })
+                                } else {
+                                    res.status(400).json({
+                                        status: 400,
+                                        message: 'Password invalid',
+                                        datetime: new Date().toISOString(),
+                                    })
+                                }
                             }
                         }
                     }
@@ -75,20 +79,26 @@ let controller = {
 
     validateLogin(req, res, next) {
         // Verify that we receive the expected input
+
+        const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/);
+
         try {
             assert(typeof req.body.emailAdress === 'string', 'email must be a string.')
             assert(typeof req.body.password === 'string', 'password must be a string.')
-            next()
+            assert(emailRegex.test(req.body.emailAdress))
         } catch (ex) {
-            res.status(422).json({
-                error: ex.toString(),
+            const err = {
+                status: 400,
+                message: ex.message,
                 datetime: new Date().toISOString(),
-            })
+            }
+            next(err)
         }
+        next()
     },
 
     validateToken(req, res, next) {
-        logger.info('validateToken called')
+        // logger.info('validateToken called')
         // logger.trace(req.headers)
         // The headers should contain the authorization-field with value 'Bearer [token]'
         const authHeader = req.headers.authorization
@@ -111,7 +121,7 @@ let controller = {
                     })
                 }
                 if (payload) {
-                    logger.debug('token is valid', payload)
+                    // logger.debug('token is valid', payload)
                     req.userId = payload.userId
                     next()
                 }
