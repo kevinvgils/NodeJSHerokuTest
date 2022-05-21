@@ -7,7 +7,8 @@ const assert = require('assert')
 require('dotenv').config()
 const dbconnection = require('../../database/dbconnection')
 const jwt = require('jsonwebtoken')
-const { jwtSecretKey, logger } = require('../../src/config/config')
+const { jwtSecretKey, logger } = require('../../src/config/config');
+const { expect } = require('chai');
 
 chai.should();
 chai.use(chaiHttp);
@@ -27,6 +28,9 @@ chai.use(chaiHttp);
  */
 const INSERT_USER = `INSERT INTO user (firstName, lastName, emailAdress, password, street, city) VALUES
 ("first", "last", "test@email.com", "secret","test", "test");`
+
+const INSERT_USER2 = `INSERT INTO user (firstName, lastName, emailAdress, password, street, city) VALUES
+("first", "last", "test1@email.com", "secret","test", "test");`
  
 let insertId = 1;
 
@@ -167,6 +171,106 @@ describe('Manage users api/user', () => {
                 result.should.be.an('object').that.has.all.keys('id', 'firstName', 'lastName', 'isActive', 'emailAdress', 'password', 'phoneNumber', 'roles', 'street', 'city');
                 done();
             }) 
+        });
+    })
+
+    describe('UC-202 Overzicht van gebruikers', () => {
+        it('TC-202-1 Toon nul gebruikers', (done) => {
+            chai.request(server).get('/api/user?isActive=1&firstName=Keiffff')
+            .end((err, res) => {
+                res.should.be.an('object');
+                let { status, result } = res.body;
+                status.should.equals(200)
+                expect(result).to.have.lengthOf(0)
+
+                done();
+            });
+        })
+        it('TC-202-2 Toon 2 gebruikers', (done) => {
+        // Voeg extra user toe.
+        dbconnection.getConnection(function (err, connection) {
+            if (err) throw err // not connected!
+
+            // Use the connection
+            connection.query(CLEAR_USERS_TABLE, function (error, results, fields) {
+                    connection.release()
+
+                    if (error) throw error
+                    dbconnection.getConnection(function (err, connection) {
+                        if (err) throw err // not connected!
+            
+                        connection.query(INSERT_USER, function (error, results, fields) {            
+                                if (error) throw error
+                                insertId = results.insertId;
+                                connection.query(INSERT_USER2, function (error, results, fields) {
+                                    connection.release()
+                
+                                    if (error) throw error
+                                    insertId = results.insertId;
+                                    chai.request(server).get('/api/user')
+                                    .end((err, res) => {
+                                        res.should.be.an('object');
+                                        let { status, result } = res.body;
+                                        status.should.equals(200)
+                                        logger.info(res.body)
+                                        result.should.be.a('array').to.have.lengthOf(2);
+                                        done();
+                                    });
+                                })
+                            }
+                        )
+                    })
+                })
+                }
+            )
+        })
+        it('TC-202-3 Toon gebruikers met zoekterm op niet-bestaande naam ', (done) => {
+            chai.request(server).get('/api/user?firstName=JanLul')
+            .end((err, res) => {
+                res.should.be.an('object');
+                let { status, result } = res.body;
+                status.should.equals(200)
+                result.should.be.a('array').to.have.lengthOf(0);
+                done();
+            });
+        })
+        it('TC-202-4 Toon gebruikers met gebruik van de zoekterm op het veld ‘isActive’=false', (done) => {
+            chai
+            .request(server)
+            .get('/api/user?isActive=false')
+            .end((err, res) => {
+                res.should.be.an('object')
+                let { status, result } = res.body;
+                status.should.equal(200);
+                result.should.be.an('array').to.have.lengthOf(0);
+                done();
+            }) 
+        })
+
+        it('TC-202-5 Toon gebruikers met gebruik van de zoekterm op het veld ‘isActive’=true', (done) => {
+            chai
+            .request(server)
+            .get('/api/user?isActive=1')
+            .end((err, res) => {
+                res.should.be.an('object')
+                let { status, result } = res.body;
+                status.should.equal(200);
+                result.should.be.an('array').to.have.lengthOf(1);
+                done();
+            })  
+        });
+
+        it('TC-202-6 Toon gebruikers met zoekterm op bestaande naam (max op 2 velden filteren)', (done) => {
+            chai
+            .request(server)
+            .get('/api/user?firstName=first')
+            .end((err, res) => {
+                res.should.be.an('object')
+                let { status, result } = res.body;
+                status.should.equal(200);
+                result.should.be.a('array').to.have.lengthOf(1);
+                done();
+            })  
         });
     })
 

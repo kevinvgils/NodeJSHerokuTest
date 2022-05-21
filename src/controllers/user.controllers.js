@@ -107,8 +107,8 @@ let controller = {
                 // Handle error after the release.
                 if (error) throw error;
         
-                res.status(201).json({
-                    status: 201,
+                res.status(200).json({
+                    status: 200,
                     result: results
                 })
             });
