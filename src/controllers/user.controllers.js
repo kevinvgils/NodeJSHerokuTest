@@ -4,6 +4,8 @@ let controller = {
     validateUser: (req, res, next) =>{
         let user = req.body;
         let { emailAdress, password, firstName, lastName, city, street } = user;
+        const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/);
+
 
         try {
             assert(typeof emailAdress === 'string', 'email must be a string')
@@ -12,6 +14,7 @@ let controller = {
             assert(typeof password === 'string', 'password must be a string')
             assert(typeof street === 'string', 'street must be a string')
             assert(typeof city === 'string', 'city must be a string')
+            assert(emailRegex.test(req.body.emailAdress))
 
 
 

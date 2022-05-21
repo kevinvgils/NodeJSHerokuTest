@@ -84,6 +84,46 @@ describe('Manage users api/user', () => {
                 done();
             });
         })
+        it('TC-201-2 Niet valide email adres', (done) => {
+            chai.request(server).post('/api/user').send({
+                "firstName": "Tester",
+                lastName: "testing",
+                isActive: 1,
+                emailAdress: "m.vaaldp@",
+                password: "secret",
+                phoneNumber: "-",
+                roles: "guest",
+                street: "teststreet",
+                city: "TestCity"
+            })
+            .end((err, res) => {
+                res.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(400)
+                message.should.be.a('string').that.equals('The expression evaluated to a falsy value:\n\n  assert(emailRegex.test(req.body.emailAdress))\n');
+                done();
+            });
+        })
+        it('TC-201-3 Niet valide wachtwoord', (done) => {
+            chai.request(server).post('/api/user').send({
+                "firstName": "Tester",
+                lastName: "testing",
+                isActive: 1,
+                emailAdress: "m.vaaldp@",
+                password: 123,
+                phoneNumber: "-",
+                roles: "guest",
+                street: "teststreet",
+                city: "TestCity"
+            })
+            .end((err, res) => {
+                res.should.be.an('object');
+                let { status, message } = res.body;
+                status.should.equals(400)
+                message.should.be.a('string').that.equals('password must be a string');
+                done();
+            });
+        })
         it('TC-201-4 Gebruiker bestaat al', (done) => {
             chai
             .request(server)
@@ -124,7 +164,7 @@ describe('Manage users api/user', () => {
                 res.should.be.an('object')
                 let { status, result } = res.body;
                 status.should.equal(201);
-                result.should.be.an('object');
+                result.should.be.an('object').that.has.all.keys('id', 'firstName', 'lastName', 'isActive', 'emailAdress', 'password', 'phoneNumber', 'roles', 'street', 'city');
                 done();
             }) 
         });
