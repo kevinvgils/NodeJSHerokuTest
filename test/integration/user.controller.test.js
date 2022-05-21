@@ -288,21 +288,21 @@ describe('Manage users api/user', () => {
             })
         })
 
-        // it('TC-203-2 Valide token en gebruiker bestaat.', (done) => {
-        //     logger.info(insertId)
+        it('TC-203-2 Valide token en gebruiker bestaat.', (done) => {
+            logger.info(insertId)
 
-        //     chai
-        //     .request(server)
-        //     .get('/api/user/profile')
-        //     .set('Authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey))
-        //     .end((err, res) => {
-        //         res.should.be.an('object')
-        //         let { status, error } = res.body;
-        //         status.should.equal(200);
-        //         error.should.be.an('string').that.equals("Not authorized");
-        //         done();
-        //     })
-        // })
+            chai
+            .request(server)
+            .get('/api/user/profile')
+            .set('Authorization', 'Bearer ' + jwt.sign({ id: insertId }, jwtSecretKey))
+            .end((err, res) => {
+                res.should.be.an('object')
+                let { status, error } = res.body;
+                status.should.equal(200);
+                error.should.be.an('string').that.equals("Not authorized");
+                done();
+            })
+        })
     })
 
     describe('UC-204 Details van gebruiker', () => {

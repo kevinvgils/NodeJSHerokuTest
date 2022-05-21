@@ -123,7 +123,7 @@ let controller = {
                     })
                 }
                 if (payload) {
-                    // logger.debug('token is valid', payload)
+                    logger.debug('token is valid', payload)
                     req.userId = payload.userId
                     next()
                 }
