@@ -73,11 +73,31 @@ let controller = {
         });
     },
     getAllUsers: function(req, res) {
+        let searchParams = req.query;
+
+        const parameters = [...Object.values(searchParams)];
+        let queryString = 'SELECT * FROM user'
+
+        if(Object.keys(searchParams).length !== 0) {
+            queryString += ' WHERE '
+            let i = 1;
+            Object.keys(searchParams).map(key => {
+                if(Object.keys(searchParams).length !== i) {
+                    queryString += key + ` LIKE '%${parameters.at(i - 1)}%' AND `;
+                    i++
+                } else {
+                    queryString += key + ` LIKE '%${parameters.at(i - 1)}%'`
+                }
+            })
+        }
+        queryString += ';'
+
+
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
-            connection.query('SELECT * FROM user;', function (error, results, fields) {
+            connection.query(queryString, parameters, function (error, results, fields) {
                 // When done with the connection, release it.
                 connection.release();
             
