@@ -179,7 +179,7 @@ let controller = {
                 } else if(results.affectedRows === 1) {
                     res.status(200).json({
                         status: 200,
-                        message: 'User successfully updatedt',
+                        message: 'User successfully updated',
                         result: {
                             id: id,
                             ...updatedUser
