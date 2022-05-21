@@ -92,16 +92,45 @@ let controller = {
         });
     },
     getUserProfile: function(req, res) {
-        res.send('Not realized yet.')
-    },
-    getUserById: function(req, res) {
-        const userId = parseInt(req.params.userId);
+        const id = parseInt(req.userId);
 
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
-            connection.query('SELECT * FROM user WHERE id = ?', [userId], function (error, results, fields) {
+            connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if(error) {
+                    console.error('Error in DB');
+                    console.debug(error);
+                    return;
+                } else {
+                    if (results && results.length ) {
+                        res.status(200).json({
+                            status: 200,
+                            result: results[0]
+                        })
+                    } else {
+                        res.status(404).json({
+                            status: 404,
+                            message: 'User not found!'
+                        })
+                    }
+                }
+            });
+        });
+    },
+    getUserById: function(req, res) {
+        const id = parseInt(req.params.id);
+
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('SELECT * FROM user WHERE id = ?', [id], function (error, results, fields) {
                 // When done with the connection, release it.
                 connection.release();
             
@@ -127,7 +156,7 @@ let controller = {
         });
     },
     updateUserById: function(req, res) {
-        const userId = parseInt(req.params.userId);
+        const id = parseInt(req.params.id);
         let updatedUser = req.body
 
         dbconnection.getConnection(function(err, connection) {
@@ -135,7 +164,7 @@ let controller = {
            
             // Use the connection
             const query = "UPDATE user SET " + Object.keys(updatedUser).map(key => `${key} = ?`).join(", ") + " WHERE id = ?";
-            const parameters = [...Object.values(updatedUser), userId];
+            const parameters = [...Object.values(updatedUser), id];
             connection.query(query, parameters, function (error, results, fields) {
                 // When done with the connection, release it.
                 connection.release();
@@ -166,13 +195,13 @@ let controller = {
         });
     },
     deleteUserById: function(req, res) {
-        const userId = parseInt(req.params.userId);
+        const id = parseInt(req.params.id);
 
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
-            connection.query('DELETE FROM user WHERE id = ?;', [userId], function (error, results, fields) {
+            connection.query('DELETE FROM user WHERE id = ?;', [id], function (error, results, fields) {
                 // When done with the connection, release it.
                 connection.release();
             

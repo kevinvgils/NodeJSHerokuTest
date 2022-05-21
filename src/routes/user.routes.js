@@ -15,13 +15,13 @@ router.route('/api/user')
 // Requests own user profile
 router.get('/api/user/profile', authController.validateToken, controller.getUserProfile)
 
-router.route('/api/user/:userId')
+router.route('/api/user/:id')
 // Get single user by id
-.get(authController.validateToken, controller.getUserById)
+.get(authController.validateToken, authController.validateDataOwner, controller.getUserById)
 // Update single user by id
-.put(authController.validateToken, controller.validateUpdatedUser, controller.updateUserById)
+.put(authController.validateToken, authController.validateDataOwner, controller.validateUpdatedUser, controller.updateUserById)
 
 // Delete single user by id
-.delete(authController.validateToken, controller.deleteUserById)
+.delete(authController.validateToken, authController.validateDataOwner, controller.deleteUserById)
 
 module.exports = router

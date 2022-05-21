@@ -118,5 +118,55 @@ let controller = {
             })
         }
     },
+
+    validateDataOwner(req, res, next) {
+        if(req.userId !== req.id) {
+            res.status(403).json({
+                status: 403,
+                message: 'You are not the owner of this data!'
+            })
+        } else {
+            next();
+        }
+    },
+
+    validateMealOwner(req, res, next) {
+        const mealId = parseInt(req.params.id);
+        let cookId;
+
+        dbconnection.getConnection(function(err, connection) {
+            if (err) throw err; // not connected!
+           
+            // Use the connection
+            connection.query('SELECT * FROM meal WHERE id = ?', [mealId], function (error, results, fields) {
+                // When done with the connection, release it.
+                connection.release();
+            
+                // Handle error after the release.
+                if(error) {
+                    console.error('Error in DB');
+                    console.debug(error);
+                    return;
+                } else {
+                    if (results && results.length ) {
+                        cookId = results[0].cookId
+                        if(req.userId !== cookId) {
+                            res.status(403).json({
+                                status: 403,
+                                message: 'You are not the owner of this data!'
+                            })
+                        } else {
+                            next();
+                        }
+                    } else {
+                        res.status(404).json({
+                            status: 404,
+                            message: 'Meal not found!'
+                        })
+                    }
+                }
+            });
+        });
+    }
 }
 module.exports = controller
