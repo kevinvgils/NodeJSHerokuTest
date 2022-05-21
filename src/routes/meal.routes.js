@@ -12,7 +12,7 @@ router.route('/api/meal')
 // Get all meals
 .get(controller.getAllMeals)
 
-router.route('/api/meal/:mealId')
+router.route('/api/meal/:id')
 
 // Get single meal by id
 .get(authController.validateToken, controller.getMealById)
@@ -20,7 +20,7 @@ router.route('/api/meal/:mealId')
 // Update single meal by id
 // .put(authController.validateToken, controller.validateUpdatedUser, controller.updateUserById)
 
-// Delete single user by id
-.delete(authController.validateToken, controller.deleteMealById)
+// Delete single meal by id
+.delete(authController.validateToken, authController.validateMealOwner, controller.deleteMealById)
 
 module.exports = router

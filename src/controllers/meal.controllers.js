@@ -94,7 +94,7 @@ let controller = {
         });
     },
     getMealById: function(req, res) {
-        const mealId = parseInt(req.params.mealId);
+        const mealId = parseInt(req.params.id);
 
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
@@ -165,7 +165,7 @@ let controller = {
     //     });
     // },
     deleteMealById: function(req, res) {
-        const mealId = parseInt(req.params.mealId);
+        const mealId = parseInt(req.params.id);
 
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
