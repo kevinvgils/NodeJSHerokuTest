@@ -304,6 +304,21 @@ describe('Manage users api/user', () => {
     })
 
     describe('UC-204 Details van gebruiker', () => {
+        it('TC-204-1 Ongeldig token', (done) => {
+            let wrongkey = "wrongKey";
+            chai
+            .request(server)
+            .get('/api/user/666')
+            .set('Authorization', 'Bearer ' + jwt.sign({ id: 666 }, wrongkey))
+            .end((err, res) => {
+                res.should.be.an('object')
+                let { status, error } = res.body;
+                status.should.equal(401);
+                error.should.be.an('string').that.equals("Not authorized");
+                done();
+            })
+        })
+
         it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
             chai
                 .request(server)
@@ -317,7 +332,7 @@ describe('Manage users api/user', () => {
                     done();
                 })
         })
-        it('TC-204-4 Gebruiker-ID bestaat', (done) => {
+        it('TC-204-3 Gebruiker-ID bestaat', (done) => {
             chai
                 .request(server)
                 .get('/api/user/' + insertId)
@@ -326,7 +341,7 @@ describe('Manage users api/user', () => {
                     res.should.be.an('object')
                     let { status, result } = res.body;
                     status.should.equal(200);
-                    result.should.be.an('object');
+                    result.should.be.an('object').that.has.all.keys('id', 'firstName', 'lastName', 'isActive', 'emailAdress', 'password', 'phoneNumber', 'roles', 'street', 'city');
                     done();
                 })
         })
