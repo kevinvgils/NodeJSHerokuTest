@@ -86,8 +86,8 @@ let controller = {
                 // Handle error after the release.
                 if (error) throw error;
         
-                res.status(201).json({
-                    status: 201,
+                res.status(200).json({
+                    status: 200,
                     result: results
                 })
             });
@@ -101,27 +101,46 @@ let controller = {
            
             // Use the connection
             connection.query('SELECT * FROM meal WHERE id = ?', [mealId], function (error, results, fields) {
-                // When done with the connection, release it.
-                connection.release();
-            
-                // Handle error after the release.
-                if(error) {
-                    console.error('Error in DB');
-                    console.debug(error);
-                    return;
+                const meal = results
+                if(meal && meal.length) {
+                    connection.query('SELECT * FROM user WHERE id = ?', [meal[0].cookId], function (error, results, fields) {
+                        const cook = results[0];
+                        connection.query('SELECT userId FROM meal_participants_user WHERE mealId = ?', [meal[0].id], function (error, results, fields) {
+                        connection.release();
+                        let fullMeal = {
+                            "id": meal[0].id,
+                            "isActive": meal[0].isActive,
+                            "isVega": meal[0].isVega,
+                            "isVegan": meal[0].isVegan,
+                            "isToTakeHome": meal[0].isToTakeHome,
+                            "dateTime": meal[0].dateTime,
+                            "maxAmountOfParticipants": meal[0].maxAmountOfParticipants,
+                            "price": meal[0].price,
+                            "imageUrl": meal[0].imageUrl,
+                            "cook": cook,
+                            "name": meal[0].name,
+                            "description": meal[0].description,
+                            "allergenes": [meal[0].allergenes],
+                            "participants" : results
+                        }
+                        if(error) {
+                            console.error('Error in DB');
+                            console.debug(error);
+                            return;
+                        } else {
+                            res.status(200).json({
+                                status: 200,
+                                result: fullMeal
+                            })
+                        }
+                    })
+                })
                 } else {
-                    if (results && results.length ) {
-                        res.status(200).json({
-                            status: 200,
-                            result: results[0]
-                        })
-                    } else {
-                        res.status(404).json({
-                            status: 404,
-                            message: 'Meal not found!'
-                        })
-                    }
-                }
+                    res.status(404).json({
+                        status: 404,
+                        message: 'Meal not found!'
+                    })
+                }               
             });
         });
     },

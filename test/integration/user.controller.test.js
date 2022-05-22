@@ -17,8 +17,8 @@ chai.use(chaiHttp);
 /**
  * Db queries to clear and fill the test database before each test.
  */
- const CLEAR_MEAL_TABLE = 'DELETE FROM `meal`;'
- const CLEAR_PARTICIPANTS_TABLE = 'DELETE FROM `meal_participants_user`;'
+ const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;'
+ const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;'
  const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;'
  const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
 
@@ -41,31 +41,35 @@ describe('Manage users api/user', () => {
             if (err) throw err // not connected!
 
             // Use the connection
-            connection.query(CLEAR_USERS_TABLE, function (error, results, fields) {
-                    // When done with the connection, release it.
-                    connection.release()
+            connection.query(CLEAR_MEAL_TABLE, function (error, results, fields) {
+                if (error) throw error
+                connection.query(CLEAR_PARTICIPANTS_TABLE, function (error, results, fields) {
+                    connection.query(CLEAR_USERS_TABLE, function (error, results, fields) {
+                            // When done with the connection, release it.
+                            connection.release()
 
-                    // Handle error after the release.
-                    if (error) throw error
-                    dbconnection.getConnection(function (err, connection) {
-                        if (err) throw err // not connected!
-            
-                        // Use the connection
-                        connection.query(INSERT_USER, function (error, results, fields) {
-                                // When done with the connection, release it.
-                                connection.release()
-            
-                                // Handle error after the release.
-                                if (error) throw error
-                                insertId = results.insertId;
-                                // Let op dat je done() pas aanroept als de query callback eindigt!
-                                done()
-                            }
-                        )
+                            // Handle error after the release.
+                            if (error) throw error
+                            dbconnection.getConnection(function (err, connection) {
+                                if (err) throw err // not connected!
+                    
+                                // Use the connection
+                                connection.query(INSERT_USER, function (error, results, fields) {
+                                        // When done with the connection, release it.
+                                        connection.release()
+                    
+                                        // Handle error after the release.
+                                        if (error) throw error
+                                        insertId = results.insertId;
+                                        // Let op dat je done() pas aanroept als de query callback eindigt!
+                                        done()
+                                    }
+                                )
+                            })
+                        })
                     })
-                })
-                }
-            )
+                }) 
+            })
         })
     describe('UC-201 Registreren', () => {
         it('TC-201-1 Verplicht velt ontbreekt', (done) => {
@@ -210,7 +214,7 @@ describe('Manage users api/user', () => {
                                         res.should.be.an('object');
                                         let { status, result } = res.body;
                                         status.should.equals(200)
-                                        logger.info(res.body)
+                                        // logger.info(res.body)
                                         result.should.be.a('array').to.have.lengthOf(2);
                                         done();
                                     });

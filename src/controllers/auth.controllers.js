@@ -103,27 +103,29 @@ let controller = {
         // The headers should contain the authorization-field with value 'Bearer [token]'
         const authHeader = req.headers.authorization
         if (!authHeader) {
-            logger.warn('Authorization header missing!')
+            // logger.warn('Authorization header missing!')
             res.status(401).json({
                 status: 401,
                 message: 'Authorization header missing!',
                 datetime: new Date().toISOString(),
             })
+            return;
         } else {
             // Strip the word 'Bearer ' from the headervalue
             const token = authHeader.substring(7, authHeader.length)
 
             jwt.verify(token, jwtSecretKey, (err, payload) => {
                 if (err) {
-                    logger.warn('Not authorized')
+                    // logger.warn('Not authorized')
                     res.status(401).json({
                         status: 401,
                         message: 'Not authorized',
                         datetime: new Date().toISOString(),
                     })
+                    return;
                 }
                 if (payload) {
-                    logger.debug('token is valid', payload)
+                    // logger.debug('token is valid', payload)
                     req.userId = payload.userId
                     next()
                 }
@@ -145,29 +147,36 @@ let controller = {
     validateMealOwner(req, res, next) {
         const mealId = parseInt(req.params.id);
         let cookId;
+        // logger.debug('VALIDATING')
 
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
             connection.query('SELECT * FROM meal WHERE id = ?', [mealId], function (error, results, fields) {
+                // logger.debug('Query')
                 // When done with the connection, release it.
                 connection.release();
             
                 // Handle error after the release.
                 if(error) {
+                    // logger.debug('Error')
                     console.error('Error in DB');
                     console.debug(error);
                     return;
                 } else {
+                    // logger.debug('Else')
                     if (results && results.length ) {
+                        // logger.debug('If')
                         cookId = results[0].cookId
                         if(req.userId !== cookId) {
                             res.status(403).json({
                                 status: 403,
                                 message: 'You are not the owner of this data!'
                             })
+                            return;
                         } else {
+                            // logger.debug('next')
                             next();
                         }
                     } else {
