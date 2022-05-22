@@ -65,29 +65,29 @@ describe('Meals', () => {
         })
 
         describe('UC-301 Maaltijd aanmaken', () => {
-            // it('TC-301-1 Verplicht velt ontbreekt', (done) => {
-            //     chai.request(server).post('/api/meal/').set('authorization', 'Bearer ' + jwt.sign({ userId: insertId }, jwtSecretKey))
-            //     .send({
-            //         "name": "JAJAJA",
-            //         "description": 'adfaf',
-            //         "isActive": true,
-            //         "isVega": false,
-            //         "isVegan": false,
-            //         "isToTakeHome": false,
-            //         "dateTime": '2021-10-17 15:40:10',
-            //         "imageUrl": 'afdafa',
-            //         // "allergenes": ["gluten", "lactose"],
-            //         "maxAmountOfParticipants": 4,
-            //         "price": 4.1
-            //     })
-            //     .end((err, res) => {
-            //         res.should.be.an('object');
-            //         let { status, message } = res.body;
-            //         status.should.equals(400)
-            //         message.should.be.a('string').that.equals("allergenes must be an array");
-            //         done();
-            //     });
-            // })
+            it('TC-301-1 Verplicht velt ontbreekt', (done) => {
+                chai.request(server).post('/api/meal/').set('authorization', 'Bearer ' + jwt.sign({ userId: insertId }, jwtSecretKey))
+                .send({
+                    "name": "JAJAJA",
+                    "description": 'adfaf',
+                    "isActive": true,
+                    "isVega": false,
+                    "isVegan": false,
+                    "isToTakeHome": false,
+                    "dateTime": '2021-10-17 15:40:10',
+                    "imageUrl": 'afdafa',
+                    // "allergenes": ["gluten", "lactose"],
+                    "maxAmountOfParticipants": 4,
+                    "price": 4.1
+                })
+                .end((err, res) => {
+                    res.should.be.an('object');
+                    let { status, message } = res.body;
+                    status.should.equals(400)
+                    message.should.be.a('string').that.equals("allergenes must be an array");
+                    done();
+                });
+            })
             it('TC-301-2 Niet ingelogd', (done) => {
                 chai.request(server).post('/api/meal/').send({
                     "name": 'afasd',
