@@ -1,4 +1,5 @@
 const assert = require('assert');
+const { resolve } = require('path');
 const dbconnection = require('../../database/dbconnection')
 let controller = {
     validateMeal: (req, res, next) =>{
@@ -74,21 +75,78 @@ let controller = {
             });
         });
     },
-    getAllMeals: function(req, res) {
+    getAllMeals: async function(req, res) {
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
             connection.query('SELECT * FROM meal;', function (error, results, fields) {
                 // When done with the connection, release it.
-                connection.release();
-            
-                // Handle error after the release.
-                if (error) throw error;
-        
-                res.status(200).json({
-                    status: 200,
-                    result: results
+                let meals =[];
+                let promise = new Promise((resolve, reject) => {
+                    results.forEach((meal, index, array) => {
+                        let participants;
+                        let participantsfull;
+                        let getAllParticipants = new Promise((resolve, reject) => {
+                            connection.query('SELECT userId FROM meal_participants_user WHERE mealId = ?;', [meal.id], function (error, results, fields) {
+                                participants = results;
+                                queryStringParticipants = 'SELECT * FROM user WHERE id = '
+                                if(participants.length !== 0) {
+                                    let i = 1;
+                                    participants.forEach(userId => {
+                                        if(participants.length !== i) {
+                                            queryStringParticipants += userId.userId + ` OR  id = `;
+                                            i++
+                                        } else {
+                                            queryStringParticipants += userId.userId + ';';
+                                        }
+                                    })
+                                } else {
+                                    queryStringParticipants += '0;'
+                                }
+                                connection.query(queryStringParticipants, function (error, results, fields) {
+                                    participantsfull = results;
+                                    if(error) {
+                                        console.error('Error in DB');
+                                        console.debug(error);
+                                        return;
+                                    }
+                                    resolve();
+                                })
+                            })
+                        })
+                        connection.query('SELECT * FROM user WHERE id = ?;', [meal.cookId], function (error, results, fields) {
+                            getAllParticipants.then(() => {
+                                meals.push({
+                                    "id": meal.id,
+                                    "isActive": meal.isActive,
+                                    "isVega": meal.isVega,
+                                    "isVegan": meal.isVegan,
+                                    "isToTakeHome": meal.isToTakeHome,
+                                    "dateTime": meal.dateTime,
+                                    "maxAmountOfParticipants": meal.maxAmountOfParticipants,
+                                    "price": meal.price,
+                                    "imageUrl": meal.imageUrl,
+                                    "cook": results[0],
+                                    "name": meal.name,
+                                    "description": meal.description,
+                                    "allergenes": meal.allergenes,
+                                    "participants": participantsfull
+                                });
+                                // Handle error after the release.
+                                if (error) throw error;
+                                if (index === array.length -1) resolve();
+                            })
+                        })
+                    })
+                })
+
+                promise.then(() => {
+                    res.status(200).json({
+                        status: 200,
+                        result: meals
+                    })
+                    connection.release();
                 })
             });
         });
@@ -100,39 +158,57 @@ let controller = {
             if (err) throw err; // not connected!
            
             // Use the connection
-            connection.query('SELECT * FROM meal WHERE id = ?', [mealId], function (error, results, fields) {
+            connection.query('SELECT * FROM meal WHERE id = ?;', [mealId], function (error, results, fields) {
                 const meal = results
                 if(meal && meal.length) {
-                    connection.query('SELECT * FROM user WHERE id = ?', [meal[0].cookId], function (error, results, fields) {
+                    connection.query('SELECT * FROM user WHERE id = ?;', [meal[0].cookId], function (error, results, fields) {
                         const cook = results[0];
-                        connection.query('SELECT userId FROM meal_participants_user WHERE mealId = ?', [meal[0].id], function (error, results, fields) {
-                        connection.release();
-                        let fullMeal = {
-                            "id": meal[0].id,
-                            "isActive": meal[0].isActive,
-                            "isVega": meal[0].isVega,
-                            "isVegan": meal[0].isVegan,
-                            "isToTakeHome": meal[0].isToTakeHome,
-                            "dateTime": meal[0].dateTime,
-                            "maxAmountOfParticipants": meal[0].maxAmountOfParticipants,
-                            "price": meal[0].price,
-                            "imageUrl": meal[0].imageUrl,
-                            "cook": cook,
-                            "name": meal[0].name,
-                            "description": meal[0].description,
-                            "allergenes": [meal[0].allergenes],
-                            "participants" : results
-                        }
-                        if(error) {
-                            console.error('Error in DB');
-                            console.debug(error);
-                            return;
-                        } else {
-                            res.status(200).json({
-                                status: 200,
-                                result: fullMeal
+                        connection.query('SELECT userId FROM meal_participants_user WHERE mealId = ?;', [meal[0].id], function (error, results, fields) {
+                            let participants = results;
+                            let queryStringParticipants = 'SELECT * FROM user WHERE id = '
+                            if(participants.length !== 0) {
+                                let i = 1;
+                                participants.forEach(userId => {
+                                    if(participants.length !== i) {
+                                        queryStringParticipants += userId.userId + ` OR  id = `;
+                                        i++
+                                    } else {
+                                        queryStringParticipants += userId.userId + ';';
+                                    }
+                                })
+                            } else {
+                                queryStringParticipants += '0;'
+                            }
+                            connection.query(queryStringParticipants, function (error, results, fields) {
+                                connection.release();
+                                let fullMeal = {
+                                    "id": meal[0].id,
+                                    "isActive": meal[0].isActive,
+                                    "isVega": meal[0].isVega,
+                                    "isVegan": meal[0].isVegan,
+                                    "isToTakeHome": meal[0].isToTakeHome,
+                                    "dateTime": meal[0].dateTime,
+                                    "maxAmountOfParticipants": meal[0].maxAmountOfParticipants,
+                                    "price": meal[0].price,
+                                    "imageUrl": meal[0].imageUrl,
+                                    "cook": cook,
+                                    "name": meal[0].name,
+                                    "description": meal[0].description,
+                                    "allergenes": [meal[0].allergenes],
+                                    "participants" : results
+                                }
+                                if(error) {
+                                    console.error('Error in DB');
+                                    console.debug(error);
+                                    return;
+                                } else {
+                                    res.status(200).json({
+                                        status: 200,
+                                        result: fullMeal
+                                    })
+                                }
                             })
-                        }
+  
                     })
                 })
                 } else {
