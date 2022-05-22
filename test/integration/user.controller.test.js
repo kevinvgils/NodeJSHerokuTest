@@ -281,9 +281,9 @@ describe('Manage users api/user', () => {
             .set('authorization', 'Bearer ' + jwt.sign({ id: insertId }, wrongkey))
             .end((err, res) => {
                 res.should.be.an('object')
-                let { status, error } = res.body;
+                let { status, message } = res.body;
                 status.should.equal(401);
-                error.should.be.an('string').that.equals("Not authorized");
+                message.should.be.an('string').that.equals("Not authorized");
                 done();
             })
         })
@@ -312,9 +312,9 @@ describe('Manage users api/user', () => {
             .set('Authorization', 'Bearer ' + jwt.sign({ id: 666 }, wrongkey))
             .end((err, res) => {
                 res.should.be.an('object')
-                let { status, error } = res.body;
+                let { status, message } = res.body;
                 status.should.equal(401);
-                error.should.be.an('string').that.equals("Not authorized");
+                message.should.be.an('string').that.equals("Not authorized");
                 done();
             })
         })
@@ -404,9 +404,9 @@ describe('Manage users api/user', () => {
             })
             .end((err, res) => {
                 res.should.be.an('object');
-                let { status, error } = res.body;
+                let { status, message } = res.body;
                 status.should.equals(401)
-                error.should.be.a('string').that.equals('Not authorized');
+                message.should.be.a('string').that.equals('Not authorized');
                 done();
             });
         })
@@ -438,6 +438,32 @@ describe('Manage users api/user', () => {
                     let { status, message } = res.body;
                     status.should.equal(400);
                     message.should.be.an('string').that.equals("User does not exist");
+                    done();
+                })
+        })
+        it('TC-206-2 Niet ingelogd', (done) => {
+            chai
+                .request(server)
+                .delete('/api/user/' + insertId)
+                .end((err, res) => {
+                    res.should.be.an('object')
+                    let { status, message } = res.body;
+                    status.should.equal(401);
+                    message.should.be.an('string').that.equals("Authorization header missing!");
+                    done();
+                })
+        })
+        it('TC-206-3 Gebruiker geen eigenaar', (done) => {
+            let wrongId = insertId + 1
+            chai
+                .request(server)
+                .delete('/api/user/' + insertId)
+                .set('authorization', 'Bearer ' + jwt.sign({ userId: wrongId }, jwtSecretKey))
+                .end((err, res) => {
+                    res.should.be.an('object')
+                    let { status, message } = res.body;
+                    status.should.equal(403);
+                    message.should.be.an('string').that.equals("You are not the owner of this data!");
                     done();
                 })
         })
