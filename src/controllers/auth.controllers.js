@@ -28,11 +28,7 @@ let controller = {
                             })
                         }
                         if (rows) {
-                            if (
-                                rows &&
-                                rows.length === 1 &&
-                                rows[0].password == req.body.password
-                            ) {
+                            if (rows && rows.length === 1 && rows[0].password == req.body.password) {
                                 logger.info(
                                     'passwords DID match, sending userinfo and valid token'
                                 )
@@ -57,14 +53,22 @@ let controller = {
                                     }
                                 )
                             } else {
-                                logger.info(
-                                    'User not found or password invalid'
-                                )
-                                res.status(401).json({
-                                    message:
-                                        'User not found or password invalid',
-                                    datetime: new Date().toISOString(),
-                                })
+                                if(rows && rows.length === 0) {
+                                    logger.info(
+                                        'User not found'
+                                    )
+                                    res.status(404).json({
+                                        status: 404,
+                                        message: 'User not found',
+                                        datetime: new Date().toISOString(),
+                                    })
+                                } else {
+                                    res.status(400).json({
+                                        status: 400,
+                                        message: 'Password invalid',
+                                        datetime: new Date().toISOString(),
+                                    })
+                                }
                             }
                         }
                     }
@@ -75,43 +79,53 @@ let controller = {
 
     validateLogin(req, res, next) {
         // Verify that we receive the expected input
+
+        const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/);
+
         try {
             assert(typeof req.body.emailAdress === 'string', 'email must be a string.')
             assert(typeof req.body.password === 'string', 'password must be a string.')
-            next()
+            assert(emailRegex.test(req.body.emailAdress))
         } catch (ex) {
-            res.status(422).json({
-                error: ex.toString(),
+            const err = {
+                status: 400,
+                message: ex.message,
                 datetime: new Date().toISOString(),
-            })
+            }
+            next(err)
         }
+        next()
     },
 
     validateToken(req, res, next) {
-        logger.info('validateToken called')
+        // logger.info('validateToken called')
         // logger.trace(req.headers)
         // The headers should contain the authorization-field with value 'Bearer [token]'
         const authHeader = req.headers.authorization
         if (!authHeader) {
-            logger.warn('Authorization header missing!')
+            // logger.warn('Authorization header missing!')
             res.status(401).json({
-                error: 'Authorization header missing!',
+                status: 401,
+                message: 'Authorization header missing!',
                 datetime: new Date().toISOString(),
             })
+            return;
         } else {
             // Strip the word 'Bearer ' from the headervalue
             const token = authHeader.substring(7, authHeader.length)
 
             jwt.verify(token, jwtSecretKey, (err, payload) => {
                 if (err) {
-                    logger.warn('Not authorized')
+                    // logger.warn('Not authorized')
                     res.status(401).json({
-                        error: 'Not authorized',
+                        status: 401,
+                        message: 'Not authorized',
                         datetime: new Date().toISOString(),
                     })
+                    return;
                 }
                 if (payload) {
-                    logger.debug('token is valid', payload)
+                    // logger.debug('token is valid', payload)
                     req.userId = payload.userId
                     next()
                 }
@@ -133,29 +147,36 @@ let controller = {
     validateMealOwner(req, res, next) {
         const mealId = parseInt(req.params.id);
         let cookId;
+        // logger.debug('VALIDATING')
 
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
             connection.query('SELECT * FROM meal WHERE id = ?', [mealId], function (error, results, fields) {
+                // logger.debug('Query')
                 // When done with the connection, release it.
                 connection.release();
             
                 // Handle error after the release.
                 if(error) {
+                    // logger.debug('Error')
                     console.error('Error in DB');
                     console.debug(error);
                     return;
                 } else {
+                    // logger.debug('Else')
                     if (results && results.length ) {
+                        // logger.debug('If')
                         cookId = results[0].cookId
                         if(req.userId !== cookId) {
                             res.status(403).json({
                                 status: 403,
                                 message: 'You are not the owner of this data!'
                             })
+                            return;
                         } else {
+                            // logger.debug('next')
                             next();
                         }
                     } else {

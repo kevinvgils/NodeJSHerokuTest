@@ -15,7 +15,7 @@ router.route('/api/meal')
 router.route('/api/meal/:id')
 
 // Get single meal by id
-.get(authController.validateToken, controller.getMealById)
+.get(controller.getMealById)
 
 // Update single meal by id
 // .put(authController.validateToken, controller.validateUpdatedUser, controller.updateUserById)

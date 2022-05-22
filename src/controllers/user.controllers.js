@@ -1,9 +1,11 @@
 const assert = require('assert');
-const dbconnection = require('../../database/dbconnection')
+const dbconnection = require('../../database/dbconnection');
+const { logger } = require('../config/config');
 let controller = {
     validateUser: (req, res, next) =>{
         let user = req.body;
         let { emailAdress, password, firstName, lastName, city, street } = user;
+        const emailRegex = new RegExp(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/);
 
         try {
             assert(typeof emailAdress === 'string', 'email must be a string')
@@ -12,6 +14,7 @@ let controller = {
             assert(typeof password === 'string', 'password must be a string')
             assert(typeof street === 'string', 'street must be a string')
             assert(typeof city === 'string', 'city must be a string')
+            assert(emailRegex.test(req.body.emailAdress))
 
 
 
@@ -28,9 +31,13 @@ let controller = {
     validateUpdatedUser: (req, res, next) =>{
         let user = req.body;
         let { emailAdress, password, firstName, lastName, street, city, isActive, phoneNumber } = user;
+        const phoneNumberRegex = new RegExp(/^\+(?:[0-9] ?){6,14}[0-9]$/)
 
         try {
             assert(typeof emailAdress === 'string', 'emailAddress must be a string')
+            if(req.body.phoneNumber) {
+                assert(phoneNumberRegex.test(req.body.phoneNumber))
+            }
         } catch (error) {
             const err = {
                 status: 400,
@@ -104,8 +111,8 @@ let controller = {
                 // Handle error after the release.
                 if (error) throw error;
         
-                res.status(201).json({
-                    status: 201,
+                res.status(200).json({
+                    status: 200,
                     result: results
                 })
             });
