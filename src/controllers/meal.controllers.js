@@ -1,4 +1,5 @@
 const assert = require('assert');
+const { resolve } = require('path');
 const dbconnection = require('../../database/dbconnection')
 let controller = {
     validateMeal: (req, res, next) =>{
@@ -74,21 +75,44 @@ let controller = {
             });
         });
     },
-    getAllMeals: function(req, res) {
+    getAllMeals: async function(req, res) {
         dbconnection.getConnection(function(err, connection) {
             if (err) throw err; // not connected!
            
             // Use the connection
             connection.query('SELECT * FROM meal;', function (error, results, fields) {
                 // When done with the connection, release it.
-                connection.release();
-            
-                // Handle error after the release.
-                if (error) throw error;
-        
-                res.status(200).json({
-                    status: 200,
-                    result: results
+                let meals =[];
+                let promise = new Promise((resolve, reject) => {
+                    results.forEach((meal, index, array) => {
+                        connection.query('SELECT * FROM user WHERE id = ?;', [meal.cookId], function (error, results, fields) {
+                            meals.push({
+                                "id": meal.id,
+                                "isActive": meal.isActive,
+                                "isVega": meal.isVega,
+                                "isVegan": meal.isVegan,
+                                "isToTakeHome": meal.isToTakeHome,
+                                "dateTime": meal.dateTime,
+                                "maxAmountOfParticipants": meal.maxAmountOfParticipants,
+                                "price": meal.price,
+                                "imageUrl": meal.imageUrl,
+                                "cook": results[0],
+                                "name": meal.name,
+                                "description": meal.description,
+                                "allergenes": meal.allergenes
+                            });
+                            // Handle error after the release.
+                            if (error) throw error;
+                            if (index === array.length -1) resolve();
+                        })
+                    })
+                })
+                promise.then(() => {
+                    res.status(200).json({
+                        status: 200,
+                        result: meals
+                    })
+                    connection.release();
                 })
             });
         });
