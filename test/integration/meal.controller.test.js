@@ -54,6 +54,7 @@ describe('Meals', () => {
                                         if (error) throw error
                                         connection.release
                                         done()
+                                        logger.debug("DONE")
                                     })
                                 }
                             )
@@ -64,42 +65,42 @@ describe('Meals', () => {
         })
 
         describe('UC-301 Maaltijd aanmaken', () => {
-            it('TC-301-1 Verplicht velt ontbreekt', (done) => {
-                chai.request(server).post('/api/meal/').set('authorization', 'Bearer ' + jwt.sign({ userId: insertId }, jwtSecretKey))
-                .send({
-                    // name:
-                    description: 'adfaf',
-                    isActive: true,
-                    isVega: false,
-                    isVegan: false,
-                    isToTakeHome: false,
-                    dateTime: '2021-10-17 15:40:10',
-                    imageUrl: 'afdafa',
-                    allergenes: ["gluten", "lactose"],
-                    maxAmountOfParticipants: 4,
-                    price: 4.1
-                })
-                .end((err, res) => {
-                    res.should.be.an('object');
-                    let { status, message } = res.body;
-                    status.should.equals(400)
-                    message.should.be.a('string').that.equals("name must be a string");
-                    done();
-                });
-            })
+            // it('TC-301-1 Verplicht velt ontbreekt', (done) => {
+            //     chai.request(server).post('/api/meal/').set('authorization', 'Bearer ' + jwt.sign({ userId: insertId }, jwtSecretKey))
+            //     .send({
+            //         "name": "JAJAJA",
+            //         "description": 'adfaf',
+            //         "isActive": true,
+            //         "isVega": false,
+            //         "isVegan": false,
+            //         "isToTakeHome": false,
+            //         "dateTime": '2021-10-17 15:40:10',
+            //         "imageUrl": 'afdafa',
+            //         // "allergenes": ["gluten", "lactose"],
+            //         "maxAmountOfParticipants": 4,
+            //         "price": 4.1
+            //     })
+            //     .end((err, res) => {
+            //         res.should.be.an('object');
+            //         let { status, message } = res.body;
+            //         status.should.equals(400)
+            //         message.should.be.a('string').that.equals("allergenes must be an array");
+            //         done();
+            //     });
+            // })
             it('TC-301-2 Niet ingelogd', (done) => {
                 chai.request(server).post('/api/meal/').send({
-                    name: 'afasd',
-                    description: 'adfaf',
-                    isActive: true,
-                    isVega: false,
-                    isVegan: false,
-                    isToTakeHome: false,
-                    dateTime: '2021-10-17 15:40:10',
-                    imageUrl: 'afdafa',
-                    allergenes: ["gluten"],
-                    maxAmountOfParticipants: 4,
-                    price: 4.1
+                    "name": 'afasd',
+                    "description": 'adfaf',
+                    "isActive": true,
+                    "isVega": false,
+                    "isVegan": false,
+                    "isToTakeHome": false,
+                    "dateTime": '2021-10-17 15:40:10',
+                    "imageUrl": 'afdafa',
+                    "allergenes": ["gluten"],
+                    "maxAmountOfParticipants": 4,
+                    "price": 4.1
                 })
                 .end((err, res) => {
                     res.should.be.an('object');
@@ -112,17 +113,17 @@ describe('Meals', () => {
             it('TC-301-3 Maaltijd succesvol toegevoegd', (done) => {
                 chai.request(server).post('/api/meal/').set('authorization', 'Bearer ' + jwt.sign({ userId: insertId }, jwtSecretKey))
                 .send({
-                    name: 'afdakf',
-                    description: 'adfaf',
-                    isActive: true,
-                    isVega: false,
-                    isVegan: false,
-                    isToTakeHome: false,
-                    dateTime: '2021-10-17 15:40:10',
-                    imageUrl: 'afdafa',
-                    allergenes: ["gluten"],
-                    maxAmountOfParticipants: 4,
-                    price: 4.1
+                    "name": 'afdakf',
+                    "description": 'adfaf',
+                    "isActive": true,
+                    "isVega": false,
+                    "isVegan": false,
+                    "isToTakeHome": false,
+                    "dateTime": '2021-10-17 15:40:10',
+                    "imageUrl": 'afdafa',
+                    "allergenes": ["gluten"],
+                    "maxAmountOfParticipants": 4,
+                    "price": 4.1
                 })
                 .end((err, res) => {
                     res.should.be.an('object');
@@ -171,30 +172,17 @@ describe('Meals', () => {
             })
         })
 
-        describe('UC-303 Lijst van maaltijden ophalen', () => {
-            it('TC-303-1 Lijst van maaltijden geretouneerd', (done) => {
-                chai.request(server).get('/api/meal/')
+        describe('UC-305 Maaltijden verwijderen', () => {
+            it('TC-305-2 Niet ingelogd', (done) => {
+                chai.request(server).delete('/api/meal/2')
                 .end((err, res) => {
                     res.should.be.an('object');
-                    let { status, result } = res.body;
-                    status.should.equals(200)
-                    result.should.be.an('array');
+                    let { status, message } = res.body;
+                    status.should.equals(401)
+                    message.should.be.a('string').that.equals('Authorization header missing!');
                     done();
                 });
             })
-        })
-
-        describe('UC-305 Maaltijden verwijderen', () => {
-            // it('TC-305-2 Niet ingelogd', (done) => {
-            //     chai.request(server).delete('/api/meal/2')
-            //     .end((err, res) => {
-            //         res.should.be.an('object');
-            //         let { status, message } = res.body;
-            //         status.should.equals(401)
-            //         message.should.be.a('string').that.equals('Authorization header missing!');
-            //         done();
-            //     });
-            // })
 
             it('TC-305-3 Niet eigenaar van data', (done) => {
                 let notOwner = insertId + 1;
@@ -219,18 +207,18 @@ describe('Meals', () => {
                 });
             })
 
-            // it('TC-305-5 Maaltijd succesvol verwijderd', (done) => {
-            //     chai
-            //     .request(server)
-            //     .delete('/api/meal/2')
-            //     .set('authorization', 'Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
-            //     .end((err, res) => {
-            //         res.should.be.an('object');
-            //         let { status, message } = res.body;
-            //         status.should.equals(200)
-            //         message.should.be.an('string').that.equals('You are not the owner of this data!')
-            //         done();
-            //     });
-            // })
+            it('TC-305-5 Maaltijd succesvol verwijderd', (done) => {
+                chai
+                .request(server)
+                .delete('/api/meal/2')
+                .set('authorization', 'Bearer ' + jwt.sign({ userId: 1 }, jwtSecretKey))
+                .end((err, res) => {
+                    res.should.be.an('object');
+                    let { status, message } = res.body;
+                    status.should.equals(200)
+                    message.should.be.an('string').that.equals('Meal deleted successfully')
+                    done();
+                });
+            })
         })
 })
