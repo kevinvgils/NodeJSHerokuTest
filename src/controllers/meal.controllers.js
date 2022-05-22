@@ -49,7 +49,7 @@ let controller = {
                 } else {
                     meal.cook = results[0]
                     meal.participants = results[0];
-                    connection.query("INSERT INTO meal (name, description, isActive, isVega, isVegan, isToTakeHome, dateTime, imageUrl, allergenes, maxAmountOfParticipants, price, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", [meal.name, meal.description, meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.imageUrl, "(" + meal.allergenes.toString() + ")" , meal.maxAmountOfParticipants, meal.price, req.userId] ,function (error, results, fields) {
+                    connection.query("INSERT INTO meal (name, description, isActive, isVega, isVegan, isToTakeHome, dateTime, imageUrl, allergenes, maxAmountOfParticipants, price, cookId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", [meal.name, meal.description, meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.imageUrl, `(${meal.allergenes})` , meal.maxAmountOfParticipants, meal.price, req.userId] ,function (error, results, fields) {
                         // When done with the connection, release it.
                         connection.release();
                     
