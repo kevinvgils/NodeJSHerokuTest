@@ -75,7 +75,7 @@ describe('Meals', () => {
                     isToTakeHome: false,
                     dateTime: '2021-10-17 15:40:10',
                     imageUrl: 'afdafa',
-                    allergenes: [],
+                    allergenes: ["gluten", "lactose"],
                     maxAmountOfParticipants: 4,
                     price: 4.1
                 })
@@ -97,7 +97,7 @@ describe('Meals', () => {
                     isToTakeHome: false,
                     dateTime: '2021-10-17 15:40:10',
                     imageUrl: 'afdafa',
-                    allergenes: [],
+                    allergenes: ["gluten"],
                     maxAmountOfParticipants: 4,
                     price: 4.1
                 })
@@ -120,7 +120,7 @@ describe('Meals', () => {
                     isToTakeHome: false,
                     dateTime: '2021-10-17 15:40:10',
                     imageUrl: 'afdafa',
-                    allergenes: [],
+                    allergenes: ["gluten"],
                     maxAmountOfParticipants: 4,
                     price: 4.1
                 })
