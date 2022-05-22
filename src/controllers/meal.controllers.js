@@ -85,28 +85,62 @@ let controller = {
                 let meals =[];
                 let promise = new Promise((resolve, reject) => {
                     results.forEach((meal, index, array) => {
+                        let participants;
+                        let participantsfull;
+                        let getAllParticipants = new Promise((resolve, reject) => {
+                            connection.query('SELECT userId FROM meal_participants_user WHERE mealId = ?;', [meal.id], function (error, results, fields) {
+                                participants = results;
+                                queryStringParticipants = 'SELECT * FROM user WHERE id = '
+                                if(participants.length !== 0) {
+                                    let i = 1;
+                                    participants.forEach(userId => {
+                                        if(participants.length !== i) {
+                                            queryStringParticipants += userId.userId + ` OR  id = `;
+                                            i++
+                                        } else {
+                                            queryStringParticipants += userId.userId + ';';
+                                        }
+                                    })
+                                } else {
+                                    queryStringParticipants += '0;'
+                                }
+                                connection.query(queryStringParticipants, function (error, results, fields) {
+                                    participantsfull = results;
+                                    if(error) {
+                                        console.error('Error in DB');
+                                        console.debug(error);
+                                        return;
+                                    }
+                                    resolve();
+                                })
+                            })
+                        })
                         connection.query('SELECT * FROM user WHERE id = ?;', [meal.cookId], function (error, results, fields) {
-                            meals.push({
-                                "id": meal.id,
-                                "isActive": meal.isActive,
-                                "isVega": meal.isVega,
-                                "isVegan": meal.isVegan,
-                                "isToTakeHome": meal.isToTakeHome,
-                                "dateTime": meal.dateTime,
-                                "maxAmountOfParticipants": meal.maxAmountOfParticipants,
-                                "price": meal.price,
-                                "imageUrl": meal.imageUrl,
-                                "cook": results[0],
-                                "name": meal.name,
-                                "description": meal.description,
-                                "allergenes": meal.allergenes
-                            });
-                            // Handle error after the release.
-                            if (error) throw error;
-                            if (index === array.length -1) resolve();
+                            getAllParticipants.then(() => {
+                                meals.push({
+                                    "id": meal.id,
+                                    "isActive": meal.isActive,
+                                    "isVega": meal.isVega,
+                                    "isVegan": meal.isVegan,
+                                    "isToTakeHome": meal.isToTakeHome,
+                                    "dateTime": meal.dateTime,
+                                    "maxAmountOfParticipants": meal.maxAmountOfParticipants,
+                                    "price": meal.price,
+                                    "imageUrl": meal.imageUrl,
+                                    "cook": results[0],
+                                    "name": meal.name,
+                                    "description": meal.description,
+                                    "allergenes": meal.allergenes,
+                                    "participants": participantsfull
+                                });
+                                // Handle error after the release.
+                                if (error) throw error;
+                                if (index === array.length -1) resolve();
+                            })
                         })
                     })
                 })
+
                 promise.then(() => {
                     res.status(200).json({
                         status: 200,
