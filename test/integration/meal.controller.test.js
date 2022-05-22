@@ -214,7 +214,6 @@ describe('Meals', () => {
                     res.should.be.an('object');
                     let { status, message } = res.body;
                     status.should.equals(404)
-                    logger.error(err)
                     message.should.be.an('string').that.equals('Meal not found!')
                     done();
                 });
